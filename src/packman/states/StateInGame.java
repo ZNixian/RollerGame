@@ -110,6 +110,9 @@ public class StateInGame implements State {
 
         world.step();
         world.draw();
+        if (Main.DEBUG) {
+            world.drawDebug();
+        }
 
         main.fill(0, 0, 0);
         main.textSize(20);

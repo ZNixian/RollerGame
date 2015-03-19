@@ -70,14 +70,9 @@ public class ObjectGrenade extends ObjectBase {
 
     @Override
     public void draw(PGraphics applet) {
+        update();
         float x = getX();
         float y = getY();
-        if (explodeAnimation > EXPLODE_ANIMATION_DURATION) {
-//            removeFromWorld();
-            m_world.remove(this);
-//            System.out.println("ok!");
-            return;
-        }
         if (explodeAnimation > 1) {
             explodeAnimation++;
             setVelocity(0, 0);
@@ -97,6 +92,19 @@ public class ObjectGrenade extends ObjectBase {
         }
         applet.rect(0, 0, getWidth(), getHeight());
         postDraw(applet);
+    }
+
+    @Override
+    public void update() {
+        super.update();
+        if (explodeAnimation > EXPLODE_ANIMATION_DURATION) {
+//            removeFromWorld();
+            m_world.remove(this);
+//            System.out.println("ok!");
+            return;
+        }
+        float x = getX();
+        float y = getY();
         if (timer-- < 0 && !getTouching().isEmpty()) {
             explodeAnimation++;
             for (Object body_o : m_world.getBodies()) {

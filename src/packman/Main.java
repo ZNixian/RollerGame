@@ -37,6 +37,11 @@ public class Main extends PApplet {
      * Used for sending {@link EventMouseClicked} events.
      */
     private boolean wasMousePressed;
+    
+    /**
+     * Set to indicate that debugging is enabled
+     */
+    public static final boolean DEBUG = false;
 
     /**
      * Main function Tells PApplet to start the program.

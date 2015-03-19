@@ -75,6 +75,8 @@ public abstract class ObjectBase extends FBody {
      */
     @Override
     public void draw(PGraphics applet) {
+        update();
+
         preDraw(applet);
 
 //        applet.rotate(PApplet.PI / 4);
@@ -85,14 +87,21 @@ public abstract class ObjectBase extends FBody {
         }
 
         postDraw(applet);
+    }
 
+    public void update() {
         if (shouldDispose(main)) {
+            if (Main.DEBUG) {
+                System.out.println("Removing "
+                        + getClass().getSimpleName() + " at X=" + getX() + " Y=" + getY());
+            }
             m_world.remove(this);
         }
     }
 
     @Override
     public void drawDebug(PGraphics applet) {
+        update();
         preDrawDebug(applet);
 
         applet.rect(0, 0, getWidth(), getHeight());
@@ -132,10 +141,13 @@ public abstract class ObjectBase extends FBody {
             topY = m_world.getM_topLeftY() + 100;
         }
 
-        return getY() > main.height + 100
+        float pxHeight = getHeight();
+        float pxWidth = getWidth();
+
+        return getY() > main.height + pxHeight
                 || getY() < topY
-                || getX() > main.width + 100
-                || getX() < -100;
+                || getX() > main.width + pxWidth
+                || getX() < -pxWidth;
     }
 
     public Main getMain() {

@@ -14,7 +14,6 @@ import org.jbox2d.common.Vec2;
 import org.jbox2d.common.XForm;
 import packman.Main;
 import packman.states.StateInGame;
-import processing.core.PGraphics;
 
 /**
  *
@@ -35,10 +34,10 @@ public class ObjectCherry extends ObjectBase {
         world.add(this);
         attachImage(main.loadImage("cherry.png"));
     }
-
+    
     @Override
-    public void draw(PGraphics applet) {
-        super.draw(applet);
+    public void update() {
+        super.update();
         if (getTouching().contains(packMann)) {
             m_world.remove(this);
             state.setScore(state.getScore() + 1);
@@ -46,6 +45,7 @@ public class ObjectCherry extends ObjectBase {
                 state.setLives(state.getLives() + 1);
             }
         }
+        
     }
 
     @Override

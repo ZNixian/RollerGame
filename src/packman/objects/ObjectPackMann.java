@@ -9,9 +9,7 @@ import fisica.FWorld;
 import fisica.Fisica;
 import org.jbox2d.collision.shapes.CircleDef;
 import org.jbox2d.collision.shapes.ShapeDef;
-import packman.Event;
 import packman.Main;
-import packman.events.EventMouse;
 import processing.core.PApplet;
 import processing.core.PGraphics;
 import processing.core.PImage;
@@ -77,9 +75,8 @@ public class ObjectPackMann extends ObjectBase {
     }
 
     @Override
-    public void draw(PGraphics applet) {
-        super.draw(applet);
-
+    public void update() {
+        super.update();
         Main main = (Main) Fisica.parent();
 
         if (main.keyPressed) {
