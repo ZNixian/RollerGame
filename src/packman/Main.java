@@ -5,10 +5,11 @@
  */
 package packman;
 
+import fisica.Fisica;
 import java.util.Stack;
-import javax.swing.JFrame;
 import packman.events.EventKeys;
 import packman.events.EventMouse;
+import packman.events.EventMouse.EventMouseClicked;
 import packman.states.StateInit;
 import processing.core.PApplet;
 
@@ -27,17 +28,17 @@ public class Main extends PApplet {
     private Stack<State> states;
 
     /**
-     * The {@link StateInit} used as the first state.
-     * We keep it to allow us to 'reset' all the states, if we need to.
+     * The {@link StateInit} used as the first state. We keep it to allow us to
+     * 'reset' all the states, if we need to.
      */
     private StateInit initState;
-    
+
     /**
-     * Used to remember if the mouse was pressed last frame.
-     * Used for sending {@link EventMouseClicked} events.
+     * Used to remember if the mouse was pressed last frame. Used for sending
+     * {@link EventMouseClicked} events.
      */
     private boolean wasMousePressed;
-    
+
     /**
      * Set to indicate that debugging is enabled
      */
@@ -64,15 +65,14 @@ public class Main extends PApplet {
         states = new Stack<>();
         initState = new StateInit();
         states.push(initState);
-        frame.setResizable(true);
-        frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
+        size(displayWidth - 60, displayHeight - 60);
 
-//        setSize(750, 750);
+        Fisica.init(this); // start Fisica
     }
 
     /**
      * Tell the current state to draw, and exit if there are no states.
-     * 
+     *
      * Also send any events we need to handle.
      */
     @Override
@@ -82,13 +82,12 @@ public class Main extends PApplet {
             return;
         }
 
-//        System.out.println("ok: "+states);
-        State s = states.peek();
+        State s = states.peek(); // get the active State
         s.draw(this);
 
-        if (mousePressed && !wasMousePressed) {
+        if (mousePressed && !wasMousePressed) { // if the mouse is pressed now, but wasn't last frame.
             EventMouse event = new EventMouse.EventMouseClicked(mouseButton, mouseX, mouseY);
-            states.peek().handleEvent(this, event);
+            s.handleEvent(this, event);
         }
         wasMousePressed = mousePressed;
     }
@@ -126,12 +125,30 @@ public class Main extends PApplet {
         return initState;
     }
 
+    /**
+     * Handle a key press.
+     */
     @Override
     public void keyPressed() {
+        // make a EventKeyPressed, and send it to the active state.
+        EventKeys event = new EventKeys.EventKeyPressed(key);
+        states.peek().handleEvent(this, event);
+
+        // We can stop Processing from closing when we press escape.
+        // We do this by setting the key variable to 0, as processing handles
+        // it's stuff after calling this function.
         if (key == ESC) {
-            EventKeys event = new EventKeys.EventKeyPressed(key);
-            states.peek().handleEvent(this, event);
             key = 0; // no excape key to exit.
         }
+    }
+
+    /**
+     * Does the sketch run in full screen mode?
+     *
+     * @return {@code true}
+     */
+    @Override
+    public boolean sketchFullScreen() {
+        return true;
     }
 }

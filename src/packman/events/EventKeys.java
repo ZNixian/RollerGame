@@ -8,8 +8,9 @@ package packman.events;
 import packman.Event;
 
 /**
- *
+ * An abstract base for every event involving keys.
  * @author campbell
+ * @see EventKeyPressed
  */
 public abstract class EventKeys implements Event {
 
@@ -23,8 +24,8 @@ public abstract class EventKeys implements Event {
     }
 
     /**
-     * Represents a mouse click.
-     * This is sent when the mouse button is depressed over the main window.
+     * Represents a key press.
+     * This is sent when a key is pressed.
      */
     public static class EventKeyPressed extends EventKeys {
 

@@ -6,12 +6,10 @@
 package packman.objects;
 
 import fisica.FBody;
+import fisica.FContact;
 import fisica.FWorld;
-import org.jbox2d.collision.shapes.PolygonDef;
 import org.jbox2d.collision.shapes.ShapeDef;
-import org.jbox2d.common.Mat22;
-import org.jbox2d.common.Vec2;
-import org.jbox2d.common.XForm;
+import packman.BoxShape;
 import packman.Main;
 import processing.core.PApplet;
 import processing.core.PGraphics;
@@ -24,6 +22,7 @@ public class ObjectGrenade extends ObjectBase {
 
     private int timer;
     private int explodeAnimation;
+    private BoxShape shape;
 
     public static final float MAX_DIST = 128; // was 512
     public static final float MAX_DIST_SQU = PApplet.pow(MAX_DIST, 2);
@@ -35,6 +34,7 @@ public class ObjectGrenade extends ObjectBase {
 
     public ObjectGrenade(FWorld world, float x, float y, Main main) {
         super(8, 8, main);
+        shape = new BoxShape(this);
         setPosition(x, y);
         setRestitution(0.3f);
         world.add(this);
@@ -43,91 +43,121 @@ public class ObjectGrenade extends ObjectBase {
 
     @Override
     protected ShapeDef getShapeDef() {
-        PolygonDef pd = new PolygonDef();
-        pd.setAsBox(getUnscaledWidth() / 2.0f, getUnscaledHeight() / 2.0f);
-        pd.density = m_density;
-        pd.friction = m_friction;
-        pd.restitution = m_restitution;
-        pd.isSensor = m_sensor;
-        return pd;
+        return shape.getShapeDef();
     }
 
     @Override
     protected ShapeDef getTransformedShapeDef() {
-        PolygonDef pd = (PolygonDef) getShapeDef();
-
-        XForm xf = new XForm();
-        xf.R.set(-m_angle);
-        xf.position = Mat22.mul(xf.R, m_position.negate());
-
-        for (Vec2 vertice : pd.vertices) {
-            Vec2 ver = (Vec2) vertice;
-            XForm.mulTransToOut(xf, ver, ver);
-        }
-
-        return pd;
+        return shape.getTransformedShapeDef();
     }
 
     @Override
     public void draw(PGraphics applet) {
-        update();
-        float x = getX();
+        update(); // update everything
+
+        float x = getX(); // cache our X and Y
         float y = getY();
+
+        // If we're in the process of exploding..
         if (explodeAnimation > 1) {
-            explodeAnimation++;
-            setVelocity(0, 0);
+            explodeAnimation++; // increase our timer.
+
+            setVelocity(0, 0); // Reset everything, so we don't move when we're exploding.
             setAngularVelocity(0);
             resetForces();
+
+            // find our current size
             float size = explodeAnimation * 100 / EXPLODE_ANIMATION_DURATION;
+
+            // draw ourselves as an ellipse
             applet.noStroke();
             applet.fill(255, 0, 0, 255 - (explodeAnimation * 255 / EXPLODE_ANIMATION_DURATION));
             applet.ellipse(x, y, size, size);
+
+            // return here, so we don't draw ourselves normally.
             return;
         }
-        preDraw(applet);
-        if (timer <= 0) {
-            applet.fill(255, 255, 255);
+
+        preDraw(applet); // do translation stuff
+
+        if (timer <= 0) { // if we're armed,
+            applet.fill(255, 255, 255); // make ourselves white
         } else {
+            // otherwise, fade from black to red.
             applet.fill((TIMER_MAX - timer) * 255 / TIMER_MAX, 0, 0);
         }
+
+        // draw ourselves.
         applet.rect(0, 0, getWidth(), getHeight());
-        postDraw(applet);
+
+        postDraw(applet); // and un-translate everything.
     }
 
     @Override
     public void update() {
         super.update();
+
+        // if we've finished our explode animation,
         if (explodeAnimation > EXPLODE_ANIMATION_DURATION) {
-//            removeFromWorld();
-            m_world.remove(this);
-//            System.out.println("ok!");
+            m_world.remove(this); // remove ourself.
             return;
         }
-        float x = getX();
-        float y = getY();
-        if (timer-- < 0 && !getTouching().isEmpty()) {
-            explodeAnimation++;
-            for (Object body_o : m_world.getBodies()) {
-                if (body_o == this) {
-                    continue;
-                }
-                FBody body = (FBody) body_o;
-                float bx = body.getX();
-                float by = body.getY();
-                float dist_squ = PApplet.pow(bx - x, 2) + PApplet.pow(by - y, 2);
-                if (dist_squ < MAX_DIST_SQU) {
-                    float pow = PApplet.cos(dist_squ * PApplet.HALF_PI / MAX_DIST_SQU) * POW;
-                    float difft = Math.abs(bx - x) + Math.abs(by - y);
-                    float xpow = (bx - x) * pow / difft;
-                    float ypow = (by - y) * pow / difft;
-                    body.addImpulse(xpow, ypow);
-                }
-            }
+
+        // a backup, to make sure we do explode, if onContact() doesn't get called.
+        if (timer-- < 0 && !getBox2dBody().getBodiesInContact().isEmpty()) {
+            onContact(null);
         }
     }
 
     @Override
     public String getDebugInfoString() {
         return super.getDebugInfoString() + "explodeAnimation: " + explodeAnimation + "\n";
+    }
+
+    @Override
+    public void onContact(FContact contact) {
+        // if:
+        //  * we're armed
+        //  * we're not already exploding
+        if (timer >= 0 || explodeAnimation > 1) {
+            return;
+        }
+
+        float x = getX(); // cache our position
+        float y = getY();
+        
+        explodeAnimation++; // start the animation ticking
+        
+        // for every body in the world...
+        for (Object body_o : m_world.getBodies()) {
+            if (body_o == this) { // we don't want to affect ourselves
+                continue;
+            }
+            
+            // cast it to a fbody
+            FBody body = (FBody) body_o;
+            
+            float bx = body.getX(); // cache their X and Y
+            float by = body.getY();
+            
+            // find the distance squared between us and them
+            float dist_squ = PApplet.pow(bx - x, 2) + PApplet.pow(by - y, 2);
+            
+            // if we're i  range
+            if (dist_squ < MAX_DIST_SQU) {
+                // find the power of our impluse
+                float pow = PApplet.cos(dist_squ * PApplet.HALF_PI / MAX_DIST_SQU) * POW;
+                
+                // find the total X+Y difference
+                float difft = Math.abs(bx - x) + Math.abs(by - y);
+                
+                // find the power of the impluse in each direction.s
+                float xpow = (bx - x) * pow / difft;
+                float ypow = (by - y) * pow / difft;
+                
+                // give this body an impulse
+                body.addImpulse(xpow, ypow);
+            }
+        }
     }
 }

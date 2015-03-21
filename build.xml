@@ -79,6 +79,7 @@
             </fileset>
         </jar>
         
+        <echo>Copying jar to bin...</echo>
         <copy todir="bin">
             <fileset dir="${basedir}/dist">
                 <include name="*"/>

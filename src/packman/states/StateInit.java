@@ -17,7 +17,7 @@ import packman.State;
  */
 public class StateInit implements State {
     
-    private State nextState = new StateSetSize();
+    private State nextState = new StateMenu();
 
     @Override
     public void setup(Main main, State s) {

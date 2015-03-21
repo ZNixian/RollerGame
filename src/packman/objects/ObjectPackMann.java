@@ -11,7 +11,6 @@ import org.jbox2d.collision.shapes.CircleDef;
 import org.jbox2d.collision.shapes.ShapeDef;
 import packman.Main;
 import processing.core.PApplet;
-import processing.core.PGraphics;
 import processing.core.PImage;
 
 /**
@@ -53,7 +52,7 @@ public class ObjectPackMann extends ObjectBase {
     private float lastRotVelocity; // packmann's rotational velocity.
     private int animationStage = 0;// packmann's stage through his animation.
     
-    private long lastReset;
+    private long lastReset; // when packmann was last reset
 
     /**
      * Makes a new PackMann instance
@@ -76,9 +75,11 @@ public class ObjectPackMann extends ObjectBase {
 
     @Override
     public void update() {
-        super.update();
-        Main main = (Main) Fisica.parent();
+        super.update(); // update everything
+        
+        Main main = (Main) Fisica.parent(); // cache our parents
 
+        // if a key is pressed, then apply the appropriate torque
         if (main.keyPressed) {
             if (main.keyCode == PApplet.RIGHT) {
                 addTorque(ACCELERATION);
@@ -88,10 +89,13 @@ public class ObjectPackMann extends ObjectBase {
             }
         }
 
+        // cache our angular velocity
         float dir = getAngularVelocity();
 
-        float MAX_SPEED_RPS = (MAX_SPEED * PApplet.TWO_PI / 60); // Max speed in Radians per Second
+        // find the Max speed in Radians per Second
+        float MAX_SPEED_RPS = (MAX_SPEED * PApplet.TWO_PI / 60);
 
+        // if we're spinning too fast, then slow oruselves down.
         if (Math.abs(dir) > MAX_SPEED_RPS) {
             if (dir > 0) {
                 dir = MAX_SPEED_RPS;
@@ -101,12 +105,17 @@ public class ObjectPackMann extends ObjectBase {
             setAngularVelocity(dir);
         }
 
+        // save our last velocity, in case we stop moving.
         if (dir == 0) {
             dir = lastRotVelocity;
         } else {
             lastRotVelocity = dir;
         }
+        
+        // find the animation index for diraction
         int animDir = dir > 0 ? 0 : 1;
+        
+        // play the animation.
         if (main.frameCount % 20 == 0) {
             animationStage++;
             animationStage %= sprites[0].length;
@@ -115,6 +124,7 @@ public class ObjectPackMann extends ObjectBase {
                 animationStage = 1;
             }
         }
+        
         attachImage(sprites[animDir][animationStage]);
     }
     
@@ -160,6 +170,7 @@ public class ObjectPackMann extends ObjectBase {
 
     @Override
     public boolean shouldDispose(Main main) {
+        // don't actually destroy ourselves - see StateInGame
         return false;
     }
 

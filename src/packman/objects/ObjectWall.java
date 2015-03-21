@@ -11,12 +11,13 @@ import packman.Main;
 import static packman.objects.ObjectPackMann.FRICTION;
 
 /**
- *
+ * A simple wall object.
+ * Used to represent the floor.
  * @author campbell
  */
 public class ObjectWall extends ObjectBase {
 
-    private BoxShape shape = new BoxShape(this);
+    private final BoxShape shape = new BoxShape(this);
 
     public ObjectWall(float x, float y, float width, float height, Main main) {
         super(width, height, main);
