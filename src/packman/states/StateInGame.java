@@ -34,30 +34,28 @@ public class StateInGame implements State {
      * The physics world
      */
     private FWorld world;
-    
+
     /**
      * The {@link ObjectPackMann} object.
      */
     private ObjectPackMann packMann;
-    
+
     /**
      * The number of lives PackMann has/
      */
     private int lives;
-    
+
     /**
      * The number of Cherries PackMann has eaten.
      */
     private int score = 0;
 
-    
     /**
-     * The running sum of PackMann's lives.
-     * PackMann's life counter is added to this
-     * whenever he loses or gains lives.
+     * The running sum of PackMann's lives. PackMann's life counter is added to
+     * this whenever he loses or gains lives.
      */
     private int stat_lifeCounter = 0;
-    
+
     /**
      * The total number of changes to PackMann's lives.
      */
@@ -84,20 +82,20 @@ public class StateInGame implements State {
         world = new FWorld(); // make the physics world
         world.setGravity(0, 300); // set the gravity
         world.setGrabbable(false); // make it so that people cannot drag things around
-        
+
         // add a contact listener. This tells objects when they touch something else.
         world.setContactListener(new FContactListener() {
 
             @Override
             public void contactStarted(FContact contact) {
                 // if it is possible to tell body1 they are in a collision
-                if(contact.getBody1() instanceof ObjectBase) {
+                if (contact.getBody1() instanceof ObjectBase) {
                     // tell them
                     ((ObjectBase) contact.getBody1()).onContact(contact);
                 }
-                
+
                 // same as above, but for body2
-                if(contact.getBody2() instanceof ObjectBase) {
+                if (contact.getBody2() instanceof ObjectBase) {
                     ((ObjectBase) contact.getBody2()).onContact(contact);
                 }
             }
@@ -118,28 +116,29 @@ public class StateInGame implements State {
         int width = main.width; // cache width and height
         int height = main.height;
 
-        // make 10 random bumps
-        for (int i = 0; i < 10; i++) {
+        // make random bumps
+        // the width of the screem /100
+        for (int i = 0; i < width / 100; i++) { // used to make 10 bumps
             // make a random bump width
             float bumpWidth = main.random(50, 250);
-            
+
             // find the width of one side of the bump
             float bumpSide = bumpWidth / 2;
-            
+
             // find the bump's height. This is between 1/4 and 1/2 of the bump's width
             float bumpHeight = main.random(bumpWidth / 4, bumpWidth / 2);
-            
+
             // find the X position of the bump
             float x = main.random(width - bumpSide * 2) + bumpSide;
 
             // make the bump as a polygon
             FPoly poly = new FPoly();
-            
+
             // add all 3 points
             poly.vertex(x - bumpSide, height - baseHeight); // left-most point
             poly.vertex(x + bumpSide, height - baseHeight); // right-most pojnt
             poly.vertex(x, height - bumpHeight - baseHeight); // top point
-            
+
             // set it up, and add it to the world
             poly.setStatic(true); // bumps don't roll around
             poly.setFriction(2 - FRICTION); // nice and grippy
@@ -169,7 +168,7 @@ public class StateInGame implements State {
         //  * add a new cherry/bomb
         if ((main.frameCount % mode.getFramesPerDrop()) == 1
                 && packMann.getLastReset() + 1000 < System.currentTimeMillis()) {
-            
+
             // come up with a random x position
             float x = main.random(0, main.width);
 
@@ -200,7 +199,7 @@ public class StateInGame implements State {
 
         world.step(); // simulate the world
         world.draw(); // draw the world
-        
+
         // if debug mode is on, draw everything with debug info.
         if (Main.DEBUG) {
             world.drawDebug();
@@ -208,7 +207,7 @@ public class StateInGame implements State {
 
         main.fill(0, 0, 0); // text is black
         main.textSize(20); // and 20px
-        
+
         // print all the stats that people are likely to care about.
         main.text("Lives: " + getLives(), 20, 40);
         main.text("Score: " + score, 20, 60);
@@ -232,7 +231,7 @@ public class StateInGame implements State {
                 ((ObjectBase) obj).handleEvent(main, ev);
             }
         }
-        
+
         // if ESC was pressed, show the pause screen.
         if (ev instanceof EventKeys.EventKeyPressed) {
             EventKeys.EventKeyPressed evkp = (EventKeys.EventKeyPressed) ev;
@@ -273,8 +272,8 @@ public class StateInGame implements State {
     }
 
     /**
-     * Show the game-over screen.
-     * Note: you still have to popState(1) yourself
+     * Show the game-over screen. Note: you still have to popState(1) yourself
+     *
      * @param main The {@link Main} object
      */
     public void showEndGameScreen(Main main) {
