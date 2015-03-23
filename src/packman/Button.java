@@ -5,6 +5,8 @@
  */
 package packman;
 
+import static packman.Main.DEBUG;
+
 /**
  * Represents a button on screen.
  *
@@ -31,6 +33,13 @@ public class Button {
     public void draw(Main main) {
         if (isInside(main.mouseX, main.mouseY)) { // if the mouse is hovering, change colour
             main.fill(150, 150, 150); // set the fill. This has an effect when we draw a button.
+            if (DEBUG) {
+                System.out.println("[Button name=" + text + "] [State=" + main.getActiveState()
+                        .getClass().getSimpleName()
+                        + "] X=" + x + ", Y=" + y
+                        + " : size= W=" + width + ", H=" + height
+                        + " : mouse= X=" + main.mouseX + ",Y=" + main.mouseY);
+            }
         } else {
             main.fill(0, 0, 0);
         }
@@ -68,6 +77,8 @@ public class Button {
 
     /**
      * Is a position (hint: mouse) inside of this button?
+     *
+     * PRECISION NOTE: the white border DOES count as the button.
      *
      * @param mx The X position to check
      * @param my The Y position to check

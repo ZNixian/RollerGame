@@ -10,7 +10,6 @@ import fisica.FContactListener;
 import fisica.FContactResult;
 import fisica.FPoly;
 import fisica.FWorld;
-import fisica.Fisica;
 import packman.Event;
 import packman.GameMode;
 import packman.Main;

@@ -6,6 +6,7 @@
 package packman;
 
 import fisica.Fisica;
+import java.util.Date;
 import java.util.Stack;
 import packman.events.EventKeys;
 import packman.events.EventMouse;
@@ -68,6 +69,13 @@ public class Main extends PApplet {
         size(displayWidth - 60, displayHeight - 60);
 
         Fisica.init(this); // start Fisica
+
+        if (DEBUG) {
+            System.err.println("Debugging Enabled");
+            System.err.println(new Date());
+            System.out.println("Screen size: " + displayWidth + ", " + displayHeight);
+            System.out.println("Program size: " + width + ", " + height);
+        }
     }
 
     /**
@@ -80,6 +88,11 @@ public class Main extends PApplet {
         if (states.empty()) { // if the initState is gone, then exit.
             exit();
             return;
+        }
+        if (DEBUG) {
+            System.out.println("[Main] [Mouse Pos] [State=" + getActiveState()
+                    .getClass().getSimpleName()
+                    + " : mouse= X=" + mouseX + ",Y=" + mouseY);
         }
 
         State s = states.peek(); // get the active State
@@ -150,5 +163,9 @@ public class Main extends PApplet {
     @Override
     public boolean sketchFullScreen() {
         return true;
+    }
+
+    public State getActiveState() {
+        return states.peek();
     }
 }
