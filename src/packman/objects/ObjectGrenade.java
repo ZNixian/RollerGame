@@ -59,7 +59,7 @@ public class ObjectGrenade extends ObjectBase {
         float y = getY();
 
         // If we're in the process of exploding..
-        if (explodeAnimation > 1) {
+        if (explodeAnimation >= 1) {
             explodeAnimation++; // increase our timer.
 
             setVelocity(0, 0); // Reset everything, so we don't move when we're exploding.
@@ -102,9 +102,11 @@ public class ObjectGrenade extends ObjectBase {
             m_world.remove(this); // remove ourself.
             return;
         }
+        
+        timer--;
 
         // a backup, to make sure we do explode, if onContact() doesn't get called.
-        if (timer-- < 0 && !getBox2dBody().getBodiesInContact().isEmpty()) {
+        if (!getBox2dBody().getBodiesInContact().isEmpty()) {
             onContact(null);
         }
     }
@@ -119,7 +121,7 @@ public class ObjectGrenade extends ObjectBase {
         // if:
         //  * we're armed
         //  * we're not already exploding
-        if (timer >= 0 || explodeAnimation > 1) {
+        if (timer >= 0 || explodeAnimation >= 1) {
             return;
         }
 
